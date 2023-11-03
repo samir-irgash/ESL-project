@@ -48,30 +48,28 @@ bool read(uint32_t pin) {
 
 void blink_n_times(int n, uint32_t led_idx) {
     int i;
+
     for (i = 0; i < n; ++i) {
+        // Debouncing is implemented here.
+        while (read(SW2_PIN) != SW2_PRESSED);
         led_set(led_idx);
         nrf_delay_ms(SMALL_DELAY_MS);
+        while (read(SW2_PIN) != SW2_PRESSED);
         led_reset(led_idx);
         nrf_delay_ms(SMALL_DELAY_MS);
     }
 }
 
 void blink_device_id(uint32_t led_idx) {
-    // Debouncing is implemented here.
-
-    while (read(SW2_PIN) != SW2_PRESSED);
     blink_n_times((DEVICE_ID/1000)%10, led_idx);
     nrf_delay_ms(500);
-
-    while (read(SW2_PIN) != SW2_PRESSED);
+    
     blink_n_times((DEVICE_ID/100)%10, led_idx);
     nrf_delay_ms(500);
-
-    while (read(SW2_PIN) != SW2_PRESSED);
+    
     blink_n_times((DEVICE_ID/10)%10, led_idx);
     nrf_delay_ms(500);
 
-    while (read(SW2_PIN) != SW2_PRESSED);
     blink_n_times(DEVICE_ID%10, led_idx);
     nrf_delay_ms(500);
 }
