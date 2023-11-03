@@ -90,7 +90,7 @@ int main(void)
     while (true)
     {
         int i;
-        for (i = 0; i < 3; ++i) {
+        for (i = 0; i < LEDS_NUMBER; ++i) {
             blink_device_id(leds[i]);
         }
     }
