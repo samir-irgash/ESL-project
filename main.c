@@ -14,6 +14,8 @@
 #define LED_GREEN NRF_GPIO_PIN_MAP(1, 9)
 #define LED_BLUE NRF_GPIO_PIN_MAP(0, 12)
 
+#undef LEDS_NUMBER
+#define LEDS_NUMBER 3
 
 #define NRF_GPIO_SW2_PULL NRF_GPIO_PIN_PULLUP
 
@@ -22,7 +24,7 @@
 #define SW2_PRESSED 0
 #define SW2_RELEASED 1
 
-const uint32_t leds[3] = {LED_RED, LED_GREEN, LED_BLUE};
+const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE};
 
 void config_sw2() {
     nrf_gpio_cfg_input(SW2_PIN, NRF_GPIO_SW2_PULL);
@@ -62,16 +64,16 @@ void blink_n_times(int n, uint32_t led_idx) {
 
 void blink_device_id(uint32_t led_idx) {
     blink_n_times((DEVICE_ID/1000)%10, led_idx);
-    nrf_delay_ms(500);
+    nrf_delay_ms(SMALL_DELAY_MS);
     
     blink_n_times((DEVICE_ID/100)%10, led_idx);
-    nrf_delay_ms(500);
+    nrf_delay_ms(SMALL_DELAY_MS);
     
     blink_n_times((DEVICE_ID/10)%10, led_idx);
-    nrf_delay_ms(500);
+    nrf_delay_ms(SMALL_DELAY_MS);
 
     blink_n_times(DEVICE_ID%10, led_idx);
-    nrf_delay_ms(500);
+    nrf_delay_ms(SMALL_DELAY_MS);
 }
 
 /**
