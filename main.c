@@ -5,17 +5,18 @@
 #include "nrf_delay.h"
 #include "boards.h"
 
-#define DEVICE_ID 4321
+#define DEVICE_ID 1111
 
-#define SMALL_DELAY_MS 500
+#define SMALL_DELAY_MS 100
 
 #define SW2_PIN NRF_GPIO_PIN_MAP(1, 6)
+#define LED_0 NRF_GPIO_PIN_MAP(0, 6)
 #define LED_RED NRF_GPIO_PIN_MAP(0, 8)
 #define LED_GREEN NRF_GPIO_PIN_MAP(1, 9)
 #define LED_BLUE NRF_GPIO_PIN_MAP(0, 12)
 
 #undef LEDS_NUMBER
-#define LEDS_NUMBER 3
+#define LEDS_NUMBER 4
 
 #define NRF_GPIO_SW2_PULL NRF_GPIO_PIN_PULLUP
 
@@ -24,7 +25,7 @@
 #define SW2_PRESSED 0
 #define SW2_RELEASED 1
 
-const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE};
+const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE, LED_0};
 
 void config_sw2() {
     nrf_gpio_cfg_input(SW2_PIN, NRF_GPIO_SW2_PULL);
@@ -49,7 +50,7 @@ bool read(uint32_t pin) {
 }
 
 void blink_n_times(int n, uint32_t led_idx) {
-    int i;
+    size_t i;
 
     for (i = 0; i < n; ++i) {
         // Debouncing is implemented here.
@@ -89,7 +90,7 @@ int main(void)
     /* Toggle LEDs. */
     while (true)
     {
-        int i;
+        size_t i;
         for (i = 0; i < LEDS_NUMBER; ++i) {
             blink_device_id(leds[i]);
         }
