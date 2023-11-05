@@ -4,6 +4,7 @@
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 #include "boards.h"
+#include "nrfx_systick.h"
 
 #define DEVICE_ID 1111
 
@@ -27,11 +28,11 @@
 
 const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE, LED_0};
 
-void config_sw2() {
+void config_sw2(void) {
     nrf_gpio_cfg_input(SW2_PIN, NRF_GPIO_SW2_PULL);
 }
 
-void config_leds() {
+void config_leds(void) {
     nrf_gpio_cfg_output(LED_RED);
     nrf_gpio_cfg_output(LED_GREEN);
     nrf_gpio_cfg_output(LED_BLUE);
