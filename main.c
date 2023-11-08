@@ -63,21 +63,30 @@ void blink_n_times(int n, uint32_t led_idx) {
     
     for (size_t i = 0; i < n; ++i) {
         nrfx_systick_state_t current_state;
-        while (read(SW2_PIN) != SW2_PRESSED);
         for (size_t duty_cycle_milli = 0; duty_cycle_milli <= 1000; duty_cycle_milli += 2) {
-            nrfx_systick_get(&current_state);
-            led_set(led_idx);
-            while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
-            led_reset(led_idx);
-            while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
+            while (1) {
+                nrfx_systick_get(&current_state);
+                led_set(led_idx);
+                while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
+                led_reset(led_idx);
+                while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
+                if (read(SW2_PIN) == SW2_PRESSED) {
+                    break;
+                }
+            }
         }
-        while (read(SW2_PIN) != SW2_PRESSED);
+        
         for (size_t duty_cycle_milli = 0; duty_cycle_milli <= 1000; duty_cycle_milli += 2) {
-            nrfx_systick_get(&current_state);
-            led_set(led_idx);
-            while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
-            led_reset(led_idx);
-            while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
+            while (1) {
+                nrfx_systick_get(&current_state);
+                led_set(led_idx);
+                while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
+                led_reset(led_idx);
+                while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
+                if (read(SW2_PIN) == SW2_PRESSED) {
+                    break;
+                }
+            };
         }
         led_reset(led_idx);
         nrf_delay_ms(100);
