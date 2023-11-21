@@ -1,58 +1,51 @@
 #include <string.h>
 #include <stdbool.h>
-#include "nrf_gpio.h"
 #include <stdint.h>
 #include "nrf_delay.h"
 #include "boards.h"
 #include "nrfx_systick.h"
+#include "nrfx_gpiote.h"
 #include "my_gpio.h"
+#include "app_timer.h"
+#include "drv_rtc.h"
+#include "nrf_drv_clock.h"
+#include "my_switch.h"
+#include "my_pwm.h"
 
 #define DEVICE_ID 1111
 #define SMALL_DELAY_MS 500
 
-#define PWM_FREQUENCY_HZ 1000
-#define PWM_PERIOD_US 1000000 / PWM_FREQUENCY_HZ
-#define BLINK_DURATION_MS 100
-#define STEP_US 100
-
 const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE, LED_0};
+volatile bool pause;
 
-int timeon_us(int duty_cycle_milli) {
-    return duty_cycle_milli * PWM_PERIOD_US / 1000;
+/**@brief Function starting the internal LFCLK oscillator.
+ *
+ * @details This is needed by RTC1 which is used by the Application Timer
+ *          (When SoftDevice is enabled the LFCLK is always running and this is not needed).
+ */
+void lfclk_request(void)
+{
+    ret_code_t err_code = nrf_drv_clock_init();
+    APP_ERROR_CHECK(err_code);
+    nrf_drv_clock_lfclk_request(NULL);
 }
 
-void blink_n_times(int n, uint32_t led_idx) {
+void blink_n_times(uint32_t led_idx, int n) {
     
     for (size_t i = 0; i < n; ++i) {
-        nrfx_systick_state_t current_state;
-        for (size_t duty_cycle_milli = 0; duty_cycle_milli <= 1000; duty_cycle_milli += 2) {
-            while (1) {
-                nrfx_systick_get(&current_state);
-                led_set(led_idx);
-                while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
-                led_reset(led_idx);
-                while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
-                if (read(SW1_PIN) == SW1_PRESSED) {
-                    break;
-                }
-            }
-        }
-        
-        for (size_t duty_cycle_milli = 0; duty_cycle_milli <= 1000; duty_cycle_milli += 2) {
-            while (1) {
-                nrfx_systick_get(&current_state);
-                led_set(led_idx);
-                while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
-                led_reset(led_idx);
-                while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
-                if (read(SW1_PIN) == SW1_PRESSED) {
-                    break;
-                }
-            };
-        }
-        led_reset(led_idx);
+        my_pwm_blink(led_idx);
         nrf_delay_ms(100);
     }
+}
+
+void initialize(void) {
+    bsp_board_init(BSP_INIT_LEDS);
+    my_gpio_config_sw1();
+    my_gpio_config_leds();
+    nrfx_systick_init();
+    lfclk_request();
+    app_timer_init();
+    nrfx_gpiote_init();
 }
 
 /**
@@ -60,18 +53,19 @@ void blink_n_times(int n, uint32_t led_idx) {
  */
 int main(void)
 {
-    /* Configure board. */
-    bsp_board_init(BSP_INIT_LEDS);
-    config_sw1();
-    config_leds();
-    nrfx_systick_init();
+    initialize();
+    my_switch_init();
 
     /* Toggle LEDs. */
     while (true)
     {
-        size_t i;
-        for (i = 0; i < LEDS_NUMBER; ++i) {
-            blink_device_id(leds[i]);
-        }
+        blink_n_times(leds[0], (DEVICE_ID/1000)%10);
+        nrf_delay_ms(SMALL_DELAY_MS);
+        blink_n_times(leds[1], (DEVICE_ID/100)%10);
+        nrf_delay_ms(SMALL_DELAY_MS);
+        blink_n_times(leds[2], (DEVICE_ID/10)%10);
+        nrf_delay_ms(SMALL_DELAY_MS);
+        blink_n_times(leds[3], DEVICE_ID%10);
+        nrf_delay_ms(SMALL_DELAY_MS);
     }
 }
