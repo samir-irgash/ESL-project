@@ -25,7 +25,8 @@ void my_gpio_set_led(uint32_t led_idx);
 
 void my_gpio_reset_led(uint32_t led_idx);
 
-bool my_gpio_read_pin(uint32_t pin);
+void my_gpio_toggle_led(uint32_t led_idx);
 
+bool my_gpio_read_pin(uint32_t pin);
 
 #endif // __MY_NRF_GPIO

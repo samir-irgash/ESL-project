@@ -21,6 +21,11 @@ void my_gpio_reset_led(uint32_t led_idx) {
     nrf_gpio_pin_write(led_idx, MY_GPIO_LED_RESET);
 }
 
+void my_gpio_toggle_led(uint32_t led_idx) {
+    nrf_gpio_pin_toggle(led_idx);
+}
+
 bool my_gpio_read_pin(uint32_t pin) {
     return nrf_gpio_pin_read(pin);
 }
+
