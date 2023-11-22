@@ -15,7 +15,7 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_log_backend_usb.h"
 
-#define DEVICE_ID 1234
+#define DEVICE_ID 1111
 #define SMALL_DELAY_MS 500
 
 const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE, LED_0};
