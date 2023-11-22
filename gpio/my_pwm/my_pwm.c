@@ -4,57 +4,54 @@
 #include "my_pwm.h"
 #include "../my_gpio.h"
 
-nrfx_systick_state_t pwm_state, current_state;
-int duty_cycle_milli;
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_log_backend_usb.h"
+
 volatile bool pause;
 
-#define PWM_FREQUENCY_HZ 1000
-#define PWM_PERIOD_US 1000000 / PWM_FREQUENCY_HZ
-#define DUTY_CYCLE_MAX_MILLI 1000
-#define DUTY_CYCLE_MIN_MILLI 0
-#define DUTY_CYCLE_STEP_MILLI 2
-#define BLINK_DURATION_MS 100
-#define STEP_US 100
-
-int timeon_us(int duty_cycle_milli_arg) {
-    return duty_cycle_milli_arg * PWM_PERIOD_US / 1000;
+int time_us(int duty_cycle_milli_arg) {
+    return (duty_cycle_milli_arg * PWM_PERIOD_US) / 1000;
 }
 
-void my_pwm_turn_on(uint32_t led_i) {
-        do {
-            nrfx_systick_get(&current_state);
-            my_gpio_set_led(led_i);
-            while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
-            my_gpio_reset_led(led_i);
-            while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
-        } while (pause);
-}
+void blink_n_times(blink_context_t *context, int n) {
+    for (size_t i = 0; i < n; ++i) {
+        while (context->pwm_state != BLINK_END) {
+            bool step = my_pwm_blink(context);
 
-void my_pwm_turn_off(uint32_t led_i) {
-        do {
-            nrfx_systick_get(&current_state);
-            my_gpio_set_led(led_i);
-            while (!nrfx_systick_test(&current_state, PWM_PERIOD_US - timeon_us(duty_cycle_milli)));
-            my_gpio_reset_led(led_i);
-            while (!nrfx_systick_test(&current_state, timeon_us(duty_cycle_milli)));
-        } while (pause);
-}
-
-void my_pwm_blink(uint32_t led_i) {
-    static bool blink_on;
-    if (!nrfx_systick_test(&current_state, blink_on ? timeon_us(duty_cycle_milli) : PWM_PERIOD_US - timeon_us(duty_cycle_milli))) {
-        if (blink_on) {
-            my_pwm_turn_on(led_i);
-        } else {
-            my_pwm_turn_off(led_i);
+            if (step && !pause) {
+                my_pwm_step(context);
+            }
         }
-        duty_cycle_milli += DUTY_CYCLE_STEP_MILLI;
-        if (duty_cycle_milli > DUTY_CYCLE_MAX_MILLI) {
-            duty_cycle_milli = DUTY_CYCLE_MIN_MILLI;
-            blink_on = !blink_on;
-        }
-        // Next process time
-        nrfx_systick_get(&pwm_state);
+    }
+}
 
+bool my_pwm_blink(blink_context_t *context) {
+    if (nrfx_systick_test(&context->pwm_systick_state, context->next_exec_time_us)) {
+        nrfx_systick_get(&context->pwm_systick_state);
+        context->pwm_on = !context->pwm_on;
+        if (context->pwm_on) {
+            my_gpio_set_led(context->led_i);
+            context->next_exec_time_us = time_us(context->duty_cycle_milli);
+            return false;
+        } 
+        else {
+            my_gpio_reset_led(context->led_i);
+            context->next_exec_time_us = PWM_PERIOD_US - time_us(context->duty_cycle_milli);
+            return true;
+        }
+    }
+    return false;
+}
+
+void my_pwm_step(blink_context_t *context) {
+    context->duty_cycle_milli += context->duty_cycle_step_milli;
+
+    if (context->duty_cycle_milli == DUTY_CYCLE_MAX_MILLI) {
+        context->duty_cycle_step_milli = -context->duty_cycle_step_milli;
+    }
+    if (context->duty_cycle_milli == DUTY_CYCLE_MIN_MILLI) {
+        context->pwm_state = BLINK_END;
     }
 }
