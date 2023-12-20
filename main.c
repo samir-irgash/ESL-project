@@ -14,6 +14,7 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "nrf_log_backend_usb.h"
+#include "nrfx_pwm.h"
 
 
 #define DEVICE_ID 1111
@@ -81,6 +82,10 @@ void init(void) {
 int main(void)
 {
     init();
+    
+    nrfx_pwm_t instance;
+    nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG;
+    nrfx_pwm_init(&instance, &config, NULL);
 
     NRF_LOG_INFO("Starting up the test project with USB logging");
 

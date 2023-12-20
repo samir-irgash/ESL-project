@@ -58,6 +58,7 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_systick.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
