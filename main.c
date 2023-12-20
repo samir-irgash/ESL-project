@@ -34,17 +34,23 @@ void lfclk_request(void)
     nrf_drv_clock_lfclk_request(NULL);
 }
 
+void logs_init() {
+    ret_code_t ret = NRF_LOG_INIT(NULL);
+    APP_ERROR_CHECK(ret);
+
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+}
+
 void init(void) {
+    lfclk_request();
+    logs_init();
+    nrfx_systick_init();
+    app_timer_init();
+    nrfx_gpiote_init();
     bsp_board_init(BSP_INIT_LEDS);
     my_gpio_config_sw1();
     my_gpio_config_leds();
-    nrfx_systick_init();
-    lfclk_request();
-    app_timer_init();
-    nrfx_gpiote_init();
-    // ret_code_t ret_code = NRF_LOG_INIT(NULL);
-    // APP_ERROR_CHECK(ret_code);
-    // NRF_LOG_DEFAULT_BACKENDS_INIT();
+    my_switch_init();
 }
 
 /**
@@ -53,7 +59,8 @@ void init(void) {
 int main(void)
 {
     init();
-    my_switch_init();
+
+    NRF_LOG_INFO("Starting up the test project with USB logging");
 
     /* Toggle LEDs. */
     while (true)
@@ -68,7 +75,12 @@ int main(void)
                 .pwm_state = BLINK_BEGIN,
                 .take_step = true,
             };
+            NRF_LOG_INFO("Context changed!");
             blink_n_times(&context, sequence[led_idx]);
-        }
+            LOG_BACKEND_USB_PROCESS();
+            NRF_LOG_PROCESS();
+        }        
+        LOG_BACKEND_USB_PROCESS();
+        NRF_LOG_PROCESS();
     }
 }
