@@ -15,6 +15,7 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_log_backend_usb.h"
 
+
 #define DEVICE_ID 1111
 #define SMALL_DELAY_MS 500
 
