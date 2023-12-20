@@ -1,80 +1,56 @@
-#include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "nrf_gpio.h"
-#include "nrf_delay.h"
+#include <stdint.h>
 #include "boards.h"
+#include "nrfx_systick.h"
+#include "nrfx_gpiote.h"
+#include "my_gpio.h"
+#include "app_timer.h"
+#include "drv_rtc.h"
+#include "nrf_drv_clock.h"
+#include "my_switch.h"
+#include "my_pwm.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_log_backend_usb.h"
 
 #define DEVICE_ID 1111
-
-#define SMALL_DELAY_MS 100
-
-#define SW2_PIN NRF_GPIO_PIN_MAP(1, 6)
-#define LED_0 NRF_GPIO_PIN_MAP(0, 6)
-#define LED_RED NRF_GPIO_PIN_MAP(0, 8)
-#define LED_GREEN NRF_GPIO_PIN_MAP(1, 9)
-#define LED_BLUE NRF_GPIO_PIN_MAP(0, 12)
-
-#undef LEDS_NUMBER
-#define LEDS_NUMBER 4
-
-#define NRF_GPIO_SW2_PULL NRF_GPIO_PIN_PULLUP
-
-#define LED_SET 0
-#define LED_RESET 1
-#define SW2_PRESSED 0
-#define SW2_RELEASED 1
+#define SMALL_DELAY_MS 500
 
 const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE, LED_0};
+const int sequence[LEDS_NUMBER] = {(DEVICE_ID/1000)%10, (DEVICE_ID/100)%10, (DEVICE_ID/10)%10, DEVICE_ID%10};
+volatile bool pause;
 
-void config_sw2() {
-    nrf_gpio_cfg_input(SW2_PIN, NRF_GPIO_SW2_PULL);
+/**@brief Function starting the internal LFCLK oscillator.
+ *
+ * @details This is needed by RTC1 which is used by the Application Timer
+ *          (When SoftDevice is enabled the LFCLK is always running and this is not needed).
+ */
+void lfclk_request(void)
+{
+    ret_code_t err_code = nrf_drv_clock_init();
+    APP_ERROR_CHECK(err_code);
+    nrf_drv_clock_lfclk_request(NULL);
 }
 
-void config_leds() {
-    nrf_gpio_cfg_output(LED_RED);
-    nrf_gpio_cfg_output(LED_GREEN);
-    nrf_gpio_cfg_output(LED_BLUE);
+void logs_init() {
+    ret_code_t ret = NRF_LOG_INIT(NULL);
+    APP_ERROR_CHECK(ret);
+
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void led_set(uint32_t led_idx) {
-    nrf_gpio_pin_write(led_idx, LED_SET);
-}
-
-void led_reset(uint32_t led_idx) {
-    nrf_gpio_pin_write(led_idx, LED_RESET);
-}
-
-bool read(uint32_t pin) {
-    return nrf_gpio_pin_read(pin);
-}
-
-void blink_n_times(int n, uint32_t led_idx) {
-    size_t i;
-
-    for (i = 0; i < n; ++i) {
-        // Debouncing is implemented here.
-        while (read(SW2_PIN) != SW2_PRESSED);
-        led_set(led_idx);
-        nrf_delay_ms(SMALL_DELAY_MS);
-        while (read(SW2_PIN) != SW2_PRESSED);
-        led_reset(led_idx);
-        nrf_delay_ms(SMALL_DELAY_MS);
-    }
-}
-
-void blink_device_id(uint32_t led_idx) {
-    blink_n_times((DEVICE_ID/1000)%10, led_idx);
-    nrf_delay_ms(SMALL_DELAY_MS);
-    
-    blink_n_times((DEVICE_ID/100)%10, led_idx);
-    nrf_delay_ms(SMALL_DELAY_MS);
-    
-    blink_n_times((DEVICE_ID/10)%10, led_idx);
-    nrf_delay_ms(SMALL_DELAY_MS);
-
-    blink_n_times(DEVICE_ID%10, led_idx);
-    nrf_delay_ms(SMALL_DELAY_MS);
+void init(void) {
+    lfclk_request();
+    logs_init();
+    nrfx_systick_init();
+    app_timer_init();
+    nrfx_gpiote_init();
+    bsp_board_init(BSP_INIT_LEDS);
+    my_gpio_config_sw1();
+    my_gpio_config_leds();
+    my_switch_init();
 }
 
 /**
@@ -82,17 +58,29 @@ void blink_device_id(uint32_t led_idx) {
  */
 int main(void)
 {
-    /* Configure board. */
-    bsp_board_init(BSP_INIT_LEDS);
-    config_sw2();
-    config_leds();
+    init();
+
+    NRF_LOG_INFO("Starting up the test project with USB logging");
 
     /* Toggle LEDs. */
     while (true)
     {
-        size_t i;
-        for (i = 0; i < LEDS_NUMBER; ++i) {
-            blink_device_id(leds[i]);
-        }
+        for (size_t led_idx = 0; led_idx < LEDS_NUMBER; ++led_idx) {
+            blink_context_t context = {
+                .led_i = leds[led_idx],
+                .duty_cycle_milli = DUTY_CYCLE_MIN_MILLI,
+                .duty_cycle_step_milli = DUTY_CYCLE_STEP_MILLI,
+                .next_exec_time_us = 0,
+                .pwm_on = false,
+                .pwm_state = BLINK_BEGIN,
+                .take_step = true,
+            };
+            NRF_LOG_INFO("Context changed!");
+            blink_n_times(&context, sequence[led_idx]);
+            LOG_BACKEND_USB_PROCESS();
+            NRF_LOG_PROCESS();
+        }        
+        LOG_BACKEND_USB_PROCESS();
+        NRF_LOG_PROCESS();
     }
 }
