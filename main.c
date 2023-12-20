@@ -22,6 +22,27 @@ const uint32_t leds[LEDS_NUMBER] = {LED_RED, LED_GREEN, LED_BLUE, LED_0};
 const int sequence[LEDS_NUMBER] = {(DEVICE_ID/1000)%10, (DEVICE_ID/100)%10, (DEVICE_ID/10)%10, DEVICE_ID%10};
 volatile bool pause;
 
+typedef enum {
+    INPUT_NO,
+    INPUT_HUE,
+    INPUT_SATURATION,
+    INPUT_BRIGHTNESS
+} input_mode;
+
+input_mode next_mode(input_mode mode) {
+    switch (mode) {
+        case INPUT_NO:
+            return INPUT_HUE;
+        case INPUT_HUE:
+            return INPUT_SATURATION;
+        case INPUT_SATURATION:
+            return INPUT_BRIGHTNESS;
+        case INPUT_BRIGHTNESS:
+            return INPUT_NO;
+    }
+    return INPUT_NO;
+}
+
 /**@brief Function starting the internal LFCLK oscillator.
  *
  * @details This is needed by RTC1 which is used by the Application Timer
