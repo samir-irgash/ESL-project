@@ -15,7 +15,7 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_log_backend_usb.h"
 #include "nrfx_pwm.h"
-
+#include "nrf_pwm.h"
 
 #define DEVICE_ID 1111
 #define SMALL_DELAY_MS 500
@@ -82,32 +82,28 @@ void init(void) {
 int main(void)
 {
     init();
-    
-    nrfx_pwm_t instance;
-    nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG;
-    nrfx_pwm_init(&instance, &config, NULL);
 
-    NRF_LOG_INFO("Starting up the test project with USB logging");
+    // NRF_LOG_INFO("Starting up the test project with USB logging");
 
     /* Toggle LEDs. */
     while (true)
     {
-        for (size_t led_idx = 0; led_idx < LEDS_NUMBER; ++led_idx) {
-            blink_context_t context = {
-                .led_i = leds[led_idx],
-                .duty_cycle_milli = DUTY_CYCLE_MIN_MILLI,
-                .duty_cycle_step_milli = DUTY_CYCLE_STEP_MILLI,
-                .next_exec_time_us = 0,
-                .pwm_on = false,
-                .pwm_state = BLINK_BEGIN,
-                .take_step = true,
-            };
-            NRF_LOG_INFO("Context changed!");
-            blink_n_times(&context, sequence[led_idx]);
-            LOG_BACKEND_USB_PROCESS();
-            NRF_LOG_PROCESS();
-        }        
-        LOG_BACKEND_USB_PROCESS();
-        NRF_LOG_PROCESS();
+        // for (size_t led_idx = 0; led_idx < LEDS_NUMBER; ++led_idx) {
+        //     blink_context_t context = {
+        //         .led_i = leds[led_idx],
+        //         .duty_cycle_milli = DUTY_CYCLE_MIN_MILLI,
+        //         .duty_cycle_step_milli = DUTY_CYCLE_STEP_MILLI,
+        //         .next_exec_time_us = 0,
+        //         .pwm_on = false,
+        //         .pwm_state = BLINK_BEGIN,
+        //         .take_step = true,
+        //     };
+        //     NRF_LOG_INFO("Context changed!");
+        //     blink_n_times(&context, sequence[led_idx]);
+        //     LOG_BACKEND_USB_PROCESS();
+        //     NRF_LOG_PROCESS();
+        // }        
+        // LOG_BACKEND_USB_PROCESS();
+        // NRF_LOG_PROCESS();
     }
 }
