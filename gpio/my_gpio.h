@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "nrf_gpio.h"
 
 #define SW1_PIN NRF_GPIO_PIN_MAP(1, 6)
 #define LED_0 NRF_GPIO_PIN_MAP(0, 6)
