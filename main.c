@@ -20,6 +20,8 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "nrf_log_backend_usb.h"
+#include "nrfx_pwm.h"
+#include "nrf_pwm.h"
 
 #define DEVICE_ID 1100
 #define SMALL_DELAY_MS 500
