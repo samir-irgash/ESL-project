@@ -4,7 +4,13 @@
 #include "nrfx_gpiote.h"
 #include "nrfx_errors.h"
 #include "my_switch.h"
+#include "my_gpio.h"
+#include "my_pwm.h"
 
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_log_backend_usb.h"
 /*
 * @note The polarity for each action (pull-up resistor considered)
 *   BUTTON ACTION   POLARITY ACTION     ENUM
@@ -32,18 +38,32 @@ void my_switch_debounce_handler(void *p_context) {
 
 void my_switch_click_handler(void *p_context) {
     if (switch_state == SWITCH_RELEASED) { // Click happened
-        click_cnt += 1;
-        if (click_cnt == 2) {
-            pause = !pause;
-        }
         app_timer_start(switch_dclick_timer, APP_TIMER_TICKS(DOUBLECLICK_ALLOWED_INTERVAL_MS), NULL);
     } else { // Button on hold
-        click_cnt = 0;
+        ;
     }
 }
 
 void my_switch_dclick_handler(void *p_context) {
-    click_cnt = 0;
+    NRF_LOG_INFO("Double Click Happened :(");
+    context.seq_values->channel_3 = 0;
+    context.yellow_up = true;
+    context.input_mode = my_pwm_next_mode(context.input_mode);
+    switch (context.input_mode) {
+        case INPUT_NO:
+            context.yellow_step = 0;
+            break;
+        case INPUT_HUE:
+            context.yellow_step = 5;
+            break;
+        case INPUT_SATURATION:
+            context.yellow_step = 20;
+            break;
+        case INPUT_VALUE:
+            context.seq_values->channel_3 = 255;
+            context.yellow_step = 0;
+            break;
+    }
 }
 
 void SW1_IRQHandler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {

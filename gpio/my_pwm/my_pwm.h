@@ -1,37 +1,55 @@
 #ifndef __MY_PWM
 #define __MY_PWM
 
-#define BLINK_DURATION_MS 1000
-#define PWM_FREQUENCY_HZ 1000
-#define PWM_PERIOD_US 1000000 / PWM_FREQUENCY_HZ
-#define DUTY_CYCLE_MAX_MILLI 1000
-#define DUTY_CYCLE_MIN_MILLI 0
-#define DUTY_CYCLE_STEP_MILLI PWM_PERIOD_US / BLINK_DURATION_MS
+#include "nrfx_pwm.h"
+#include "nrf_pwm.h"
+#include "my_color.h"
 
 typedef enum {
-    BLINK_BEGIN,
-    BLINK_END,
-} my_pwm_state_e;
+    INPUT_NO,
+    INPUT_HUE,
+    INPUT_SATURATION,
+    INPUT_VALUE
+} my_pwm_input_mode;
 
 typedef struct {
-    uint32_t led_i;                             // Led Index, indicates which led is currently blinking
-    uint32_t duty_cycle_milli;                  // Duty cycle *10^-3
-    uint32_t duty_cycle_step_milli;             // Duty cycle increment/decrement step (indicated by blink duration)
-    uint32_t next_exec_time_us;                 // Used in order not to block with while loop
-    nrfx_systick_state_t pwm_systick_state;     // Systick state from last blink context, used to compare with next_exec_time_us
-    bool pwm_on;                                // pwm_on = true indicates LED should be set, pwm_off = true indicates LED should be reset
-    bool take_step;                             // Boolean to indicate if step should be taken
-    my_pwm_state_e pwm_state;                   // state to track the ending of blink
-} blink_context_t;
+    nrf_pwm_values_individual_t *seq_values;
+    uint32_t yellow_step;
+    bool yellow_up;
+    my_pwm_input_mode input_mode;
+    my_color_hsv_t hsv;
+    my_color_rgb_t rgb;
+    bool hsv_up;
+} my_pwm_context_t;
 
-extern volatile bool pause;
+extern my_pwm_context_t context;
 
-int time_us(int duty_cycle_milli_arg);
+void my_pwm_init(void);
 
-bool my_pwm_blink(blink_context_t *context);
+my_pwm_input_mode my_pwm_next_mode(
+  my_pwm_input_mode mode
+);
 
-void blink_n_times(blink_context_t *context, int n);
+void update_yellow(
+  my_pwm_context_t *p_context
+);
 
-void my_pwm_step(blink_context_t *context;);
+void my_pwm_handle_hold(void);
+
+void my_pwm_update_hue(
+  my_pwm_context_t *p_context
+);
+
+void my_pwm_update_saturation(
+  my_pwm_context_t *p_context
+);
+
+void my_pwm_update_value(
+  my_pwm_context_t *p_context
+);
+
+void my_pwm_update_rgb(
+  my_pwm_context_t *p_context
+);
 
 #endif // __MY_PWM

@@ -1,6 +1,9 @@
 #ifndef __MY_SWITCH
 #define __MY_SWITCH
 
+#include "nrfx_gpiote.h"
+#include "nrf_gpiote.h"
+
 /*
 * @macro CLICK_DURATION_MS 
 * The time for which controller will wait for switch to be released
