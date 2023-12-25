@@ -47,6 +47,7 @@ SRC_FILES += \
   $(PROJ_DIR)/gpio/switch/my_switch.c \
   $(PROJ_DIR)/gpio/my_pwm/my_pwm.c \
   $(PROJ_DIR)/my_color/my_color.c \
+  $(PROJ_DIR)/my_flash/my_flash.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer2.c \
@@ -60,6 +61,7 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_systick.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_nvmc.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -71,6 +73,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/gpio/my_pwm \
   $(PROJ_DIR)/gpio/switch \
   $(PROJ_DIR)/my_color \
+  $(PROJ_DIR)/my_flash \
   $(SDK_ROOT)/components/softdevice/mbr/headers \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/components/toolchain/cmsis/include \

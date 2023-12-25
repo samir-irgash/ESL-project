@@ -15,6 +15,7 @@
 #include "my_switch.h"
 #include "my_pwm.h"
 #include "my_gpio.h"
+#include "my_flash.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -68,8 +69,12 @@ int main(void) {
         .hue = (DEVICE_ID % 100) * 255 / 100, 
         .saturation = 255, 
         .value = 255};
-    
-    context.hsv = default_hsv;
+
+    if (!my_flash_data_check()) {
+        context.hsv = default_hsv;
+    } else {
+        my_flash_read_hsv(&context.hsv);
+    }
 
     logs_init();
     NRF_LOG_INFO("This is log\n");
