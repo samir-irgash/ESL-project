@@ -46,7 +46,6 @@ static void usb_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_cdc_ac
     }
     case APP_USBD_CDC_ACM_USER_EVT_TX_DONE:
     {
-        NRF_LOG_INFO("tx done");
         break;
     }
     case APP_USBD_CDC_ACM_USER_EVT_RX_DONE:
@@ -54,27 +53,20 @@ static void usb_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_cdc_ac
         ret_code_t ret;
         do
         {
-            /*Get amount of data transfered*/
             size_t size = app_usbd_cdc_acm_rx_size(&usb_cdc_acm);
-            NRF_LOG_INFO("rx size: %d", size);
+            UNUSED_VARIABLE(size);
 
-            /* It's the simple version of an echo. Note that writing doesn't
-             * block execution, and if we have a lot of characters to read and
-             * write, some characters can be missed.
-             */
             if (m_rx_buffer[0] == '\r' || m_rx_buffer[0] == '\n')
             {
                 ret = app_usbd_cdc_acm_write(&usb_cdc_acm, "\r\n", 2);
 
-                command_buffer[ptr] = 0;
-                NRF_LOG_INFO("Received comand: %s", command_buffer);
+                command_buffer[ptr] = ' ';
                 my_cli_handle_command(command_buffer, &context);
             }
             else
             {
                 command_buffer[ptr] = m_rx_buffer[0];
                 ptr += 1;
-                NRF_LOG_INFO("Received char: %c\n Current buffer position: %d\n Command: %s", m_rx_buffer[0], ptr, command_buffer);
 
                 ret = app_usbd_cdc_acm_write(&usb_cdc_acm,
                                              m_rx_buffer,
@@ -96,7 +88,7 @@ static void usb_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_cdc_ac
 
 void my_cli_handle_command(char *command, my_pwm_context_t *p_context) {
     parsed_command_t parsed_command = parse_string(command);
-    if (command[0] == 'R') {
+    if (!strcmp(parsed_command.args[0], "RGB")) {
         unsigned int r, g, b;
         my_color_rgb_t rgb;
         r = atoi(parsed_command.args[1]);

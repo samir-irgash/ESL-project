@@ -9,7 +9,6 @@
 
 #define READ_SIZE 1
 
-/* Make sure that they don't intersect with LOG_BACKEND_USB_CDC_ACM */
 #define CDC_ACM_COMM_INTERFACE  2
 #define CDC_ACM_COMM_EPIN       NRF_DRV_USBD_EPIN3
 
