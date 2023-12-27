@@ -11,6 +11,7 @@
 #include "my_command.h"
 
 static char command_buffer[64];
+static char feedback_buffer[64];
 static int ptr = 0;
 static char m_rx_buffer[READ_SIZE];
 
@@ -87,6 +88,7 @@ static void usb_ev_handler(app_usbd_class_inst_t const * p_inst, app_usbd_cdc_ac
 }
 
 void my_cli_handle_command(char *command, my_pwm_context_t *p_context) {
+    ret_code_t ret;
     parsed_command_t parsed_command = parse_string(command);
     if (!strcmp(parsed_command.args[0], "RGB")) {
         unsigned int r, g, b;
@@ -100,6 +102,9 @@ void my_cli_handle_command(char *command, my_pwm_context_t *p_context) {
         rgb.blue = (uint8_t) b;
         my_color_rgb2hsv(&rgb, &p_context->hsv);
         my_flash_write_hsv(&p_context->hsv);
+
+        sprintf(feedback_buffer, "RGB value is set to: R=%d, G=%d, B=%d\r\n", r, g, b);
+        ret = app_usbd_cdc_acm_write(&usb_cdc_acm, feedback_buffer, strlen(feedback_buffer));
     }
 
     else if (command[0] == 'H') {
@@ -114,22 +119,29 @@ void my_cli_handle_command(char *command, my_pwm_context_t *p_context) {
         p_context->hsv.saturation = (uint8_t) s;
         p_context->hsv.value = (uint8_t) v;
         my_flash_write_hsv(&p_context->hsv);
+
+        sprintf(feedback_buffer, "HSV value is set to: H=%d, S=%d, V=%d\r\n", h, s, v);
+        ret = app_usbd_cdc_acm_write(&usb_cdc_acm, feedback_buffer, strlen(feedback_buffer));
+
     }
 
     else if (command[0] == 'h') {
-        ret_code_t ret;
         ret = app_usbd_cdc_acm_write(&usb_cdc_acm, help_me, strlen(help_me));
-        UNUSED_VARIABLE(ret);
     }
+
+
+    UNUSED_VARIABLE(ret);
 
     ptr = 0;
     memset(command, 0, 64);
+    memset(feedback_buffer, 0, 64);
 }
 
 ret_code_t my_cli_init(void) {
     app_usbd_class_inst_t const * class_cdc_acm = app_usbd_cdc_acm_class_inst_get(&usb_cdc_acm);
     ret_code_t ret = app_usbd_class_append(class_cdc_acm);
     memset(command_buffer, 0, 64);
+    memset(feedback_buffer, 0, 64);
 
     return ret;
 }
