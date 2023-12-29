@@ -67,10 +67,7 @@ void handler(nrfx_pwm_evt_type_t event) {
         }
     }
     my_color_hsv2rgb(&(context.hsv), &(context.rgb));
-
-    NRF_LOG_INFO("HSV: %d, %d, %d\nRGB: %d, %d, %d,", 
-                    context.hsv.hue, context.hsv.saturation, context.hsv.value, 
-                    context.rgb.red, context.rgb.green, context.rgb.blue);
+    
     my_pwm_update_rgb(&context);
 }
 

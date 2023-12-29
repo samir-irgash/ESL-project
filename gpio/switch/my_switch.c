@@ -6,6 +6,7 @@
 #include "my_switch.h"
 #include "my_gpio.h"
 #include "my_pwm.h"
+#include "my_flash.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -45,10 +46,13 @@ void my_switch_click_handler(void *p_context) {
 }
 
 void my_switch_dclick_handler(void *p_context) {
-    NRF_LOG_INFO("Double Click Happened :(");
+    NRF_LOG_INFO("Double Click Happened");
     context.seq_values->channel_3 = 0;
     context.yellow_up = true;
     context.input_mode = my_pwm_next_mode(context.input_mode);
+    NRF_LOG_INFO("Current input mode: %d\n", context.input_mode);
+    NRF_LOG_INFO("Current HSV: (%d, %d, %d)", context.hsv.hue, context.hsv.saturation, context.hsv.value);
+    NRF_LOG_INFO("Current RGB: (%d, %d, %d)", context.rgb.red, context.rgb.green, context.rgb.blue);
     switch (context.input_mode) {
         case INPUT_NO:
             context.yellow_step = 0;
@@ -63,6 +67,11 @@ void my_switch_dclick_handler(void *p_context) {
             context.seq_values->channel_3 = 255;
             context.yellow_step = 0;
             break;
+    }
+
+    if (context.input_mode == INPUT_NO) {
+        NRF_LOG_INFO("Back in no input mode, saving hsv data to flash...\n");
+        my_flash_write_hsv(&context.hsv);
     }
 }
 
