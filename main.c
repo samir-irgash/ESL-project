@@ -16,6 +16,9 @@
 #include "my_pwm.h"
 #include "my_gpio.h"
 #include "my_flash.h"
+#include "my_cli.h"
+
+#include "app_usbd.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -81,8 +84,14 @@ int main(void) {
     logs_init();
     NRF_LOG_INFO("This is log\n");
 
+    ret_code_t ret = my_cli_init();
+    APP_ERROR_CHECK(ret);
+
     while (true) {
-        __WFE();
+        while (app_usbd_event_queue_process())
+        {
+            /* Nothing to do */
+        }
         NRF_LOG_PROCESS();
         LOG_BACKEND_USB_PROCESS();
     }

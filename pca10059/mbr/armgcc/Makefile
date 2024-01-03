@@ -48,6 +48,8 @@ SRC_FILES += \
   $(PROJ_DIR)/gpio/my_pwm/my_pwm.c \
   $(PROJ_DIR)/my_color/my_color.c \
   $(PROJ_DIR)/my_flash/my_flash.c \
+  $(PROJ_DIR)/my_cli/my_cli.c \
+  $(PROJ_DIR)/my_cli/my_command.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer2.c \
@@ -74,6 +76,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/gpio/switch \
   $(PROJ_DIR)/my_color \
   $(PROJ_DIR)/my_flash \
+  $(PROJ_DIR)/my_cli \
   $(SDK_ROOT)/components/softdevice/mbr/headers \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
@@ -105,6 +108,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/usbd/class/cdc/acm \
   $(SDK_ROOT)/components/libraries/usbd/class/cdc \
   $(SDK_ROOT)/external/utf_converter \
+  $(SDK_ROOT)/components/libraries/usbd \
 
 # Libraries common to all targets
 LIB_FILES += \
