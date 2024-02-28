@@ -269,7 +269,6 @@ static void conn_params_init(void)
 }
 
 
-
 /**@brief Function for starting timers.
  */
 static void application_timers_start(void)
