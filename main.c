@@ -81,7 +81,8 @@
 #include "nrf_log_backend_usb.h"
 
 
-#define DEVICE_NAME                     "ESTC"                                  /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "SAMIR_IRGASHEV"                        /**< Name of device. Will be included in the advertising data. */
+#define SR_FULL_NAME                    "SAMIR_SR_IRGASHEV"
 #define MANUFACTURER_NAME               "NordicSemiconductor"                   /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                300                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 
@@ -271,14 +272,14 @@ static void conn_params_init(void)
 
 /**@brief Function for starting timers.
  */
-static void application_timers_start(void)
-{
-    /* YOUR_JOB: Start your timers. below is an example of how to start a timer.
-       ret_code_t err_code;
-       err_code = app_timer_start(m_app_timer_id, TIMER_INTERVAL, NULL);
-       APP_ERROR_CHECK(err_code); */
+// static void application_timers_start(void)
+// {
+//     /* YOUR_JOB: Start your timers. below is an example of how to start a timer.
+//        ret_code_t err_code;
+//        err_code = app_timer_start(m_app_timer_id, TIMER_INTERVAL, NULL);
+//        APP_ERROR_CHECK(err_code); */
 
-}
+// }
 
 
 /**@brief Function for handling advertising events.
@@ -436,6 +437,14 @@ static void advertising_init(void)
 
     // TODO: Add more data to the advertisement data
     // TODO: Add more data to the scan response data
+    ble_advdata_manuf_data_t manuf_data;
+    manuf_data.company_identifier = 0x0;
+    uint8_t sr_name[] = SR_FULL_NAME;
+    manuf_data.data.size = sizeof(sr_name);
+    manuf_data.data.p_data = sr_name;
+    init.srdata.name_type = BLE_ADVDATA_NO_NAME;
+    init.srdata.p_manuf_specific_data = &manuf_data;
+
 
     init.evt_handler = on_adv_evt;
 
@@ -524,7 +533,7 @@ int main(void)
 
     // Start execution.
     NRF_LOG_INFO("ESTC advertising example started.");
-    application_timers_start();
+    // application_timers_start();
 
     advertising_start();
 
