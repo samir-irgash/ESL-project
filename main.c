@@ -80,9 +80,10 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_log_backend_usb.h"
 
-#include "estc_service.h"
+#include "esl_ble_service.h"
+#include "esl_ble_notify_indicate.h"
 
-#define DEVICE_NAME                     "ESTC-SVC"                              /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "0-10 Counter"                          /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "NordicSemiconductor"                   /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                300                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 
@@ -110,11 +111,10 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        
 static ble_uuid_t m_adv_uuids[] =                                               /**< Universally unique service identifiers. */
 {
     {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE},
-    // TODO: 5. Add ESTC service UUID to the table
-    {ESTC_SERVICE_UUID, BLE_UUID_TYPE_BLE}
+    {ESL_SERVICE_UUID, BLE_UUID_TYPE_BLE}
 };
 
-ble_estc_service_t m_estc_service; /**< ESTC example BLE service */
+esl_ble_service_t m_esl_service; /**< ESTC example BLE service */
 
 static void advertising_start(void);
 
@@ -214,7 +214,7 @@ static void services_init(void)
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
-    err_code = estc_ble_service_init(&m_estc_service);
+    err_code = esl_ble_service_init(&m_esl_service);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -330,6 +330,18 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
     }
 }
 
+static void my_ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context) {
+    esl_ble_service_t * service = (esl_ble_service_t *) p_context;
+
+    switch (p_ble_evt->header.evt_id) {
+        case BLE_GAP_EVT_DISCONNECTED:
+            service->connection_handle = BLE_CONN_HANDLE_INVALID;
+            break;
+        case BLE_GAP_EVT_CONNECTED:
+            service->connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
+            break;
+    }
+}
 
 /**@brief Function for handling BLE events.
  *
@@ -416,6 +428,7 @@ static void ble_stack_init(void)
 
     // Register a handler for BLE events.
     NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
+    NRF_SDH_BLE_OBSERVER(m_esl_service, APP_BLE_OBSERVER_PRIO, my_ble_evt_handler, (void *) &m_esl_service);
 }
 
 
@@ -551,6 +564,7 @@ int main(void)
     services_init();
     advertising_init();
     conn_params_init();
+    ble_notifier_init();
 
     // Start execution.
     NRF_LOG_INFO("ESTC GATT service example started");

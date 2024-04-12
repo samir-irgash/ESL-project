@@ -130,7 +130,7 @@ _build/nrf52840_xxaa/main.c.o: ../../../main.c \
  ../../../../esl-nsdk//components/libraries/balloc/nrf_balloc.h \
  ../../../../esl-nsdk//components/libraries/log/nrf_log_default_backends.h \
  ../../../../esl-nsdk//components/libraries/log/nrf_log_backend_usb.h \
- ../../../estc_service.h
+ ../../../esl_ble_service.h ../../../esl_ble_notify_indicate.h
 
 /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h:
 
@@ -414,4 +414,6 @@ _build/nrf52840_xxaa/main.c.o: ../../../main.c \
 
 ../../../../esl-nsdk//components/libraries/log/nrf_log_backend_usb.h:
 
-../../../estc_service.h:
+../../../esl_ble_service.h:
+
+../../../esl_ble_notify_indicate.h:
