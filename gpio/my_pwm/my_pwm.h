@@ -20,6 +20,7 @@ typedef struct {
     my_color_hsv_t hsv;
     my_color_rgb_t rgb;
     bool hsv_up;
+    uint8_t flash_pos;
 } my_pwm_context_t;
 
 extern my_pwm_context_t context;

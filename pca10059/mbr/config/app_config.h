@@ -129,9 +129,9 @@
 
 // Custom config
 
-#ifndef NRFX_NVMC_ENABLED
-#define NRFX_NVMC_ENABLED 1
-#endif
+// #ifndef NRFX_NVMC_ENABLED
+// #define NRFX_NVMC_ENABLED 1
+// #endif
 
 
 

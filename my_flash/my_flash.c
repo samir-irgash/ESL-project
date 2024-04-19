@@ -3,6 +3,7 @@
 #include "my_color.h"
 #include "my_flash.h"
 #include "nrf_strerror.h"
+#include "my_pwm.h"
 
 #include "nrf_fstorage.h"
 #include "nrf_fstorage_sd.h"
@@ -15,6 +16,9 @@
 
 #define START_ADDRESS 0x3e000
 #define END_ADDRESS 0x3ffff
+
+// #define START_ADDRESS APP_DATA_STARTING_ADDRESS
+// #define END_ADDRESS APP_DATA_ENDING_ADDRESS
 
 static void fstorage_evt_handler(nrf_fstorage_evt_t * p_evt);
 
@@ -58,13 +62,13 @@ static void fstorage_evt_handler(nrf_fstorage_evt_t * p_evt)
     }
 }
 
-static void wait_for_flash_ready(nrf_fstorage_t const * p_fstorage)
-{
-    while (nrf_fstorage_is_busy(p_fstorage))
-    {
-        sd_app_evt_wait();
-    }
-}
+// static void wait_for_flash_ready(nrf_fstorage_t const * p_fstorage)
+// {
+//     while (nrf_fstorage_is_busy(p_fstorage))
+//     {
+//         __WFE();
+//     }
+// }
 
 void my_flash_init(void) {
     ret_code_t ret;
@@ -76,6 +80,7 @@ void my_flash_init(void) {
     APP_ERROR_CHECK(ret);
 }
 
+
 void my_flash_read_hsv(my_color_hsv_t *p_hsv) {
     ret_code_t ret;
     writable_hsv data;
@@ -83,7 +88,7 @@ void my_flash_read_hsv(my_color_hsv_t *p_hsv) {
     ret = nrf_fstorage_read(&fstorage, START_ADDRESS, &data, sizeof(data));
     APP_ERROR_CHECK(ret);
 
-    wait_for_flash_ready(&fstorage);
+    // wait_for_flash_ready(&fstorage);
 
     *p_hsv = data.padded.hsv;
 }
