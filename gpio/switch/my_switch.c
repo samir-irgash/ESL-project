@@ -7,6 +7,7 @@
 #include "my_gpio.h"
 #include "my_pwm.h"
 #include "my_flash.h"
+#include "my_ble_init.h"
 #include "my_ble_updater.h"
 
 #include "nrf_log.h"
@@ -72,9 +73,9 @@ void my_switch_dclick_handler(void *p_context) {
 
     if (context.input_mode == INPUT_NO) {
         NRF_LOG_INFO("Back in no input mode, saving hsv data to flash and notifying ble device...\n");
-        my_ble_notify_all(&context.rgb);
         // NRF_LOG_INFO("Dead here");
-        // my_flash_write_hsv(&context.hsv);
+        my_flash_write_hsv(&context.hsv);
+        my_ble_notify_all(&context.rgb);
     }
 }
 

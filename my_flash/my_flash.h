@@ -29,5 +29,6 @@ void my_flash_read_hsv(
 );
 
 void my_flash_init(void);
+void wait_for_flash(void);
 
 #endif // __MY_FLASH

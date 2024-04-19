@@ -26,6 +26,10 @@ static void my_ble_notify_value(uint16_t conn_handle, ble_gatts_char_handles_t c
 }
 
 void my_ble_notify_all(my_color_rgb_t *rgb) {
+    if (m_esl_service.connection_handle == BLE_CONN_HANDLE_INVALID) {
+        NRF_LOG_INFO("No BLE connection yet, rgb data is not sent");
+        return ;
+    }
     my_ble_notify_value(m_esl_service.connection_handle, 
                         m_esl_service.char_red_handle, 
                         &rgb->red);
@@ -43,13 +47,18 @@ void my_ble_update_by_handle(ble_uuid_t uuid, uint16_t handle, uint8_t value) {
         if (uuid.uuid == ESL_GATT_RED_UUID && handle == m_esl_service.char_red_handle.value_handle) {
             NRF_LOG_INFO("Red value updated through characteristic");
             context.rgb.red = value;
+            my_color_rgb2hsv(&context.rgb, &context.hsv);
+            my_flash_write_hsv(&context.hsv);
         } else if (uuid.uuid == ESL_GATT_GREEN_UUID && handle == m_esl_service.char_green_handle.value_handle) {
             NRF_LOG_INFO("Green value updated through characteristic");
             context.rgb.green = value;
+            my_color_rgb2hsv(&context.rgb, &context.hsv);
+            my_flash_write_hsv(&context.hsv);
         }
         else if (uuid.uuid == ESL_GATT_BLUE_UUID && handle == m_esl_service.char_blue_handle.value_handle) {
             NRF_LOG_INFO("Blue value updated through characteristic");
             context.rgb.blue = value;
+            my_color_rgb2hsv(&context.rgb, &context.hsv);
+            my_flash_write_hsv(&context.hsv);
         } else { NRF_LOG_INFO("Invalid characteristic handle"); }
-    my_color_rgb2hsv(&context.rgb, &context.hsv);
 }
