@@ -50,6 +50,9 @@ SRC_FILES += \
   $(PROJ_DIR)/my_flash/my_flash.c \
   $(PROJ_DIR)/my_cli/my_cli.c \
   $(PROJ_DIR)/my_cli/my_command.c \
+  $(PROJ_DIR)/my_ble/my_ble_init.c \
+  $(PROJ_DIR)/my_ble/my_led_service.c \
+  $(PROJ_DIR)/my_ble/my_ble_updater.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/components/libraries/timer/app_timer2.c \
@@ -64,6 +67,24 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_nvmc.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
+  $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
+  $(SDK_ROOT)/components/ble/common/ble_advdata.c \
+  $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
+  $(SDK_ROOT)/components/libraries/experimental_section_vars/nrf_section_iter.c \
+  $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
+  $(SDK_ROOT)/components/libraries/bsp/bsp.c \
+  $(SDK_ROOT)/components/libraries/button/app_button.c \
+  $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
+  $(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+  $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
+  $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -77,6 +98,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/my_color \
   $(PROJ_DIR)/my_flash \
   $(PROJ_DIR)/my_cli \
+  $(PROJ_DIR)/my_ble \
   $(SDK_ROOT)/components/softdevice/mbr/headers \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
@@ -87,13 +109,11 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/ringbuf \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
-  $(SDK_ROOT)/components/libraries/bsp \
   $(SDK_ROOT)/components/libraries/log \
   $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/integration/nrfx \
-  $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/boards \
   $(SDK_ROOT)/components/libraries/memobj \
@@ -109,6 +129,47 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/usbd/class/cdc \
   $(SDK_ROOT)/external/utf_converter \
   $(SDK_ROOT)/components/libraries/usbd \
+  $(SDK_ROOT)/components/softdevice/s140/headers/nrf52 \
+  $(SDK_ROOT)/components/softdevice/s140/headers \
+  $(SDK_ROOT)/components/softdevice/common \
+  $(SDK_ROOT)/components/ble/common \
+  $(SDK_ROOT)/components/ble/ble_services/ble_tps \
+  $(SDK_ROOT)/components/ble/ble_services/ble_rscs_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_rscs \
+  $(SDK_ROOT)/components/ble/ble_services/ble_nus_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_nus \
+  $(SDK_ROOT)/components/ble/ble_services/ble_lls \
+  $(SDK_ROOT)/components/ble/ble_services/ble_lbs_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_lbs \
+  $(SDK_ROOT)/components/ble/ble_services/ble_ias_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_ias \
+  $(SDK_ROOT)/components/ble/ble_services/ble_hts \
+  $(SDK_ROOT)/components/ble/ble_services/ble_hrs_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_hrs \
+  $(SDK_ROOT)/components/ble/ble_services/ble_hids \
+  $(SDK_ROOT)/components/ble/ble_services/ble_gls \
+  $(SDK_ROOT)/components/ble/ble_services/ble_dis \
+  $(SDK_ROOT)/components/ble/ble_services/ble_dfu \
+  $(SDK_ROOT)/components/ble/ble_services/ble_cts_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_cscs \
+  $(SDK_ROOT)/components/ble/ble_services/ble_bas_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_bas \
+  $(SDK_ROOT)/components/ble/ble_services/ble_ans_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_ancs_c \
+  $(SDK_ROOT)/components/ble/ble_racp \
+  $(SDK_ROOT)/components/ble/ble_dtm \
+  $(SDK_ROOT)/components/ble/ble_advertising \
+  $(SDK_ROOT)/components/libraries/fstorage \
+  $(SDK_ROOT)/components/libraries/fds \
+  $(SDK_ROOT)/components/ble/peer_manager \
+  $(SDK_ROOT)/components/ble/nrf_ble_qwr \
+  $(SDK_ROOT)/components/ble/nrf_ble_gatt \
+  $(SDK_ROOT)/components/libraries/sensorsim \
+  $(SDK_ROOT)/components/libraries/pwr_mgmt \
+  $(SDK_ROOT)/components/libraries/atomic_flags \
+  $(SDK_ROOT)/components/libraries/button \
+  $(SDK_ROOT)/components/libraries/bsp \
+  $(SDK_ROOT)/components/libraries/mutex \
 
 # Libraries common to all targets
 LIB_FILES += \
@@ -122,11 +183,13 @@ OPT = -O3 -g3
 CFLAGS += $(OPT)
 CFLAGS += -DUSE_APP_CONFIG
 CFLAGS += -DBOARD_PCA10059
-CFLAGS += -DBSP_DEFINES_ONLY
 CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 CFLAGS += -DFLOAT_ABI_HARD
 CFLAGS += -DMBR_PRESENT
 CFLAGS += -DNRF52840_XXAA
+CFLAGS += -DNRF_SD_BLE_API_VERSION=7
+CFLAGS += -DS140
+CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
@@ -145,11 +208,16 @@ ASMFLAGS += -mcpu=cortex-m4
 ASMFLAGS += -mthumb -mabi=aapcs
 ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ASMFLAGS += -DBOARD_PCA10059
-ASMFLAGS += -DBSP_DEFINES_ONLY
 ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
 ASMFLAGS += -DFLOAT_ABI_HARD
 ASMFLAGS += -DMBR_PRESENT
 ASMFLAGS += -DNRF52840_XXAA
+ASMFLAGS += -DUSE_APP_CONFIG
+ASMFLAGS += -DAPP_TIMER_V2
+ASMFLAGS += -DAPP_TIMER_V2_RTC1_ENABLED
+ASMFLAGS += -DNRF_SD_BLE_API_VERSION=7
+ASMFLAGS += -DS140
+ASMFLA40 += -DSOFTDEVICE_PRESENT
 
 # Linker flags
 LDFLAGS += $(OPT)
@@ -198,10 +266,10 @@ $(DFU_PACKAGE): $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex
 	nrfutil pkg generate \
 	   --hw-version 52 \
 	   --application-version 1 \
-	   --sd-req 0x0,0x102 \
-	   --sd-id 0x102 \
+	   --sd-req 0x0,0x100 \
+	   --sd-id 0x100 \
 	   --application $< \
-	   --softdevice $(SDK_ROOT)/components/softdevice/s113/hex/s113_nrf52_7.2.0_softdevice.hex $@
+	   --softdevice $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_7.2.0_softdevice.hex $@
 
 dfu: $(DFU_PACKAGE)
 	@echo Performing DFU with generated package

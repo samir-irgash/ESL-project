@@ -17,6 +17,8 @@
 #include "my_gpio.h"
 #include "my_flash.h"
 #include "my_cli.h"
+#include "my_ble_init.h"
+#include "my_ble_updater.h"
 
 #include "app_usbd.h"
 
@@ -53,6 +55,15 @@ void logs_init() {
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
+static void idle_state_handle(void)
+{
+    if (NRF_LOG_PROCESS() == false)
+    {
+        nrf_pwr_mgmt_run();
+    }
+	LOG_BACKEND_USB_PROCESS();
+}
+
 void init(void) {
     lfclk_request();
     nrfx_systick_init();
@@ -70,6 +81,17 @@ void init(void) {
 int main(void) {
     init();
     my_pwm_init();
+
+    logs_init();
+    NRF_LOG_INFO("This is log\n");
+
+    my_ble_init();
+
+    my_flash_init();
+
+    ret_code_t ret = my_cli_init();
+    APP_ERROR_CHECK(ret);
+
     my_color_hsv_t default_hsv = {
         .hue = (DEVICE_ID % 100) * 255 / 100, 
         .saturation = 255, 
@@ -81,18 +103,12 @@ int main(void) {
         my_flash_read_hsv(&context.hsv);
     }
 
-    logs_init();
-    NRF_LOG_INFO("This is log\n");
-
-    ret_code_t ret = my_cli_init();
-    APP_ERROR_CHECK(ret);
 
     while (true) {
         while (app_usbd_event_queue_process())
         {
             /* Nothing to do */
         }
-        NRF_LOG_PROCESS();
-        LOG_BACKEND_USB_PROCESS();
+        idle_state_handle();
     }
 }
